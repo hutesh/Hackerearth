@@ -1,60 +1,46 @@
 #include <bits/stdc++.h>
 using namespace std;
-#define int1 long long
-int1 gcd(int1 A,int1 B)
-{
-    if(B==0)
-        return A;
-    else
-        return gcd(B, A % B);
-}
-int main()
-{
-   int1 n;
-   cin>>n;
-   int1 a[n];
-   for(int1 i=0;i<n;i++)
-    cin>>a[i];
-    int1 mat[200000+1][200000+1];
-    for(int1 i=0;i<=200000;i++)
-    {
-        mat[i][i]=a[i];
-        for(int1 j=i+1;j<=200000;j++)
-        {
-            mat[i][j]=gcd(a[i],a[j]);
-            mat[j][i]=mat[i][j];
-        }
-    }
-    for(int1 i=0;i<n;i++)
-    {
-        int1 diff=INT_MAX,index=-1;
-        for(int1 j=0;j<n;j++)
-        {
-            if(i==j)
-             continue;
-             else
-             {
-                 if(mat[i][j]>1)
-                     {
-                         if(diff>fabs(i-j))
-                             {
-                                 diff=fabs(i-j);
-                                 index=j;
-                                 }
-                        else if(diff==fabs(i-j))
-                           {
-                               if(j<index)
-                                index=j;
-                           }
+const int nax = 2e5 + 5;
+int divisor[nax];
+vector<int> divisors[nax];
+vector<int> where[nax];
+bool range(int a, int b, int c) { return a <= b && b <= c; }
+int main() {
+	for(int i = 2; i * i < nax; ++i)
+		if(!divisor[i])
+			for(int j = i * i; j < nax; j += i)
+				divisor[j] = i;
+	for(int i = 1; i < nax; ++i) if(!divisor[i]) divisor[i] = i;
 
-                     }
-
-             }
-        }
-        if(index=-1)
-        cout<<"-1"<<" ";
-        else
-        cout<<index+1<<" ";
-    }
-    return 0;
+	int n;
+	scanf("%d", &n);
+	assert(range(1, n, 200 * 1000));
+	for(int i = 1; i <= n; ++i) {
+		int x;
+		scanf("%d", &x);
+		assert(range(1, x, 200 * 1000));
+		while(x > 1) {
+			int div = divisor[x];
+			divisors[i].push_back(div);
+			where[div].push_back(i);
+			while(x % div == 0) x /= div;
+		}
+	}
+	for(int i = 1; i <= n; ++i) {
+		int best = -1;
+		auto consider = [&](int j) {
+			if(best == -1 || make_pair(abs(j - i), j)
+						< make_pair(abs(best - i), i))
+				best = j;
+		};
+		for(int prime : divisors[i]) {
+			const vector<int> & vec = where[prime];
+			int j = lower_bound(vec.begin(), vec.end(), i) - vec.begin();
+			if(j != 0) consider(vec[j-1]);
+			if(j != (int) vec.size() - 1) consider(vec[j+1]);
+		}
+		printf("%d ", best);
+	}
+	puts("");
+	assert(scanf("%d", &n) == EOF);
 }
